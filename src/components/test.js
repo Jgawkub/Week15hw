@@ -1,14 +1,14 @@
 import axios from "axios";
-import React,{useState, useEffect} from "react";
+import React,{useState, useEffect, editText} from "react";
+
 export default function Test() {
     const [APIData,setAPIData]=useState([])
-    const [fullName, setFullName]=(useState(''))
-    const [email, setEmail]=(useState(' '))
-    // const [id, setID]=useState('')
+    const [fullName, setFullName]=useState('')
+    const [email, setEmail]=useState('')
+    const [editText, setEditText]=useState('')
+    const [id, setID]=useState('')
     const endpoint='https://6352caffd0bca53a8eb55114.mockapi.io/lists'
-    const[ newList, setNewList]=(useState(''))
-
-
+    // const[ newList, setNewList]=(useState(''))
 
 
 
@@ -22,32 +22,50 @@ useEffect(() => {
 
 
 
-const updateData=(id)=>{//Having a weird issue where it updates but only after hitting the update button twice. 
-   
+// const handleSubmit= async (e)=>{
+//     e.preventDefault()
+//     updateData(id);
+//     setEditText('')
+//     console.log(document.getElementsByClassName('update').value=(''))
+// }
+
+const updateData=(id,e)=>{ 
     console.log( "Updating" + id + fullName);
     axios.put(`https://6352caffd0bca53a8eb55114.mockapi.io/lists/${id}`,{
         fullName,
         email
     }).then(()=>{getData()})
     console.log(fullName)
-      
+    console.log('Updating')
+    setFullName('')
+    setEmail('')
+    setEditText('')
     }
 
+
+// const handleSubmit=(e)=>{
+//     setFullName(e.target.value)
+//     setEmail(e.target.value)
+//     updateData()
+// }
+// }
 
 const getData=()=>{//getData re-renders my data, I invoke it after an operation. 
        axios.get(endpoint).then((getData)=>{
             setAPIData(getData.data);
         })
     }
-const postList=(e,id)=>{// This sends my data, in this case the name of a list to the API.Upon that it invokes getData, sets an array to whatever the data is stored in the API. 
-    e.preventDefault()    
+const postList=(e)=>{// This sends my data, in this case the name of a list to the API.Upon that it invokes getData, sets an array to whatever the data is stored in the API. 
+    e.preventDefault()
     axios.post(endpoint, {
             fullName,
             email
         }).then(()=>{getData()});
         console.log(fullName+email)   
-        document.getElementById('name').value=(' ')
-    }   
+        document.getElementById('name').value=('')
+        document.getElementById('email').value=('')
+        
+    }
 
 // const update=(id)=>{
 //     console.log( "Updating" + id + fullName);
@@ -58,31 +76,35 @@ const postList=(e,id)=>{// This sends my data, in this case the name of a list t
 //     console.log(fullName)
 // }
 
+
 const onDelete=(id)=>{
         console.log("deleting" + id + fullName)//This takes the id of the element I'm deleting and sends that request to an API, eventually re-rendering the DOM. 
         axios.delete(`https://6352caffd0bca53a8eb55114.mockapi.io/lists/${id}`).then(()=>{getData()})}
 
 
+
 const render = APIData.map((data, index)=>{//Taking the data that is now stored in the array, I map over it creating the elements to render in the table below. Two buttons allow to uopdate or delete the informartion. 
-        return(
-        <tr key={index}><td>{data.fullName}</td><td>{data.email}</td><td><button onClick={()=>onDelete(data.id)}>DELETE</button>
+    console.log({index})    
+    return( <tr key={index}><td>{data.fullName}</td><td>{data.email}</td><td><button className="btn btn-danger" onClick={()=>onDelete(data.id)}>DELETE</button>
+    {/* I had an issue below where using the form tag the entire page would reload as opposed to re-rendering. Using a div fixed the issue */}
+        <div>
+        <br/><input className="update" type="text"  placeholder="Update Name" onChange={(e)=>{setFullName(e.target.value)}}></input>
+        <br/><input className="update" type='text'  placeholder="Update Email" onChange={(e)=>{setEmail(e.target.value)}}></input>
+        <br/>
+        <br/><button type = "submit" className="btn btn-success" onClick={()=>updateData(data.id,)}>UPDATE</button></div></td></tr>
         
-            <div>
-            <br/><input placeholder="Update Name" onChange={(e)=>{setFullName(e.target.value)}}></input>
-            <br/><input placeholder="Update Email " onChange={(e)=>{setEmail(e.target.value)}}></input>
-            <br/><button onClick={()=>updateData(data.id)}>UPDATE</button></div></td></tr>
             )
     })
 
     
         return(
           
-            <div><h3>Add your name below if you'd like to sign up for our mailing list!</h3>
-                
+            <div><h3 className="align-center">Add your name below if you'd like to sign up for our mailing list!</h3>
+           
                 <form onSubmit={postList} >
-                <input id='name' placeholder="Name" onChange={(e)=>{setFullName(e.target.value)}}></input>
-                <input id='email' placeholder='Email'onChange={(e)=>{setEmail(e.target.value)}}></input>
-                <button>Input Info Below</button>
+                <input id='name' className="update" placeholder="Name" onChange={(e)=>{setFullName(e.target.value)}}></input>
+                <input id='email'className="update" placeholder='Email'onChange={(e)=>{setEmail(e.target.value)}}></input>
+                <button  type='submit' className="btn btn-primary">Input Info Below</button>
                </form>
                
             <div>
